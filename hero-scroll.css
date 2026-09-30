@@ -35,6 +35,7 @@
   pointer-events: none;
 }
 .hero-scroll.is-video-ready .hero-video { opacity: 1; }
+.hero-scroll .hero-video { transition: opacity 180ms ease-out; }
 .hero-scroll .hero-content {
   min-height: 0;
   height: 100%;
