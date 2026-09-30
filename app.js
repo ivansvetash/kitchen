@@ -22,21 +22,8 @@ function configureMotion() {
 }
 configureMotion();
 motionPreference.addEventListener('change', configureMotion);
-// Wait for the hero photograph before starting the entrance, with a short fail-safe.
-let motionStarted = false;
-function startEntrance() {
-  if (motionStarted) return;
-  motionStarted = true;
-  requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('motion-ready')));
-}
-const heroAsset = new Image();
-heroAsset.onload = startEntrance;
-heroAsset.onerror = startEntrance;
-heroAsset.src = 'assets/hero.webp';
-if (heroAsset.complete) startEntrance();
-setTimeout(startEntrance, 700);
-const hero = document.querySelector('.hero');
-const heroImage = document.querySelector('.hero-image');
+// The first screen is driven by hero-scroll.js; the title is visible immediately.
+document.documentElement.classList.add('motion-ready');
 const progressLine = document.createElement('div');
 progressLine.className = 'reading-progress';
 progressLine.setAttribute('aria-hidden', 'true');
@@ -46,7 +33,6 @@ function paintScroll() {
   scrollFrame = 0;
   const scrollable = document.documentElement.scrollHeight - window.innerHeight;
   progressLine.style.transform = `scaleX(${scrollable > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollable)) : 0})`;
-  heroImage.style.setProperty('--scroll-offset', reducedMotion ? '0px' : `${Math.min(hero.offsetHeight, Math.max(0, window.scrollY)) * 0.08}px`);
 }
 function queueScroll() { if (!scrollFrame) scrollFrame = requestAnimationFrame(paintScroll); }
 window.addEventListener('scroll', queueScroll, {passive:true});
@@ -68,7 +54,7 @@ function closeDialog(){dialog.close();}
 dialog.querySelector('.dialog-close').addEventListener('click',closeDialog);
 dialog.addEventListener('click',event=>{if(event.target===dialog){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)closeDialog();}});
 dialog.addEventListener('close',()=>{document.body.style.overflow='';previousFocus?.focus();});
-content.addEventListener('click',event=>{if(event.target.closest('[data-contact]')){dialog.addEventListener('close',()=>document.dispatchEvent(new Event('request-consultation')),{once:true});closeDialog();}});
+content.addEventListener('click',event=>{if(event.target.closest('[data-contact]')){closeDialog();document.getElementById('contact').scrollIntoView({behavior:reducedMotion?'instant':'smooth'});document.getElementById('name').focus({preventScroll:true});}});
 const projects=[
   {title:'Современная классика',meta:'12 м² · Москва',image:'project-dark',text:'Глубокие тёмные оттенки, тёплый свет и выразительный остров. Открытое пространство объединяет кухню и зону общения.'},
   {title:'Свет и натуральные текстуры',meta:'9 м² · Москва',image:'project-light',text:'Светлые фасады, спокойная палитра и мягкие линии обеденной зоны. Натуральные текстуры делают пространство тёплым и уютным.'},
@@ -82,3 +68,15 @@ const materials=[
   {title:'Дополнительно',text:'Подсветка, стекло, металл и встроенная техника. Собираем детали в единое решение и заранее учитываем их расположение в дизайн-проекте.'}
 ];
 document.querySelectorAll('[data-material]').forEach(button=>button.addEventListener('click',()=>{const m=materials[Number(button.dataset.material)];openDialog(`<div class="dialog-body"><p class="eyebrow">Внимание к каждой детали</p><h2>${m.title}</h2><p>${m.text}</p><button class="button button-gold" data-contact>Обсудить материалы <span aria-hidden="true">↗</span></button></div>`);}));
+const form=document.getElementById('request-form'),phone=document.getElementById('phone');
+phone.addEventListener('input',()=>phone.setCustomValidity(''));
+form.addEventListener('submit',event=>{
+  event.preventDefault();
+  if(phone.value.replace(/\D/g,'').length<10){phone.setCustomValidity('Укажите номер телефона: не менее 10 цифр.');phone.reportValidity();return;}
+  const name=document.getElementById('name').value.trim();
+  if(!name){document.getElementById('name').setCustomValidity('Введите ваше имя.');document.getElementById('name').reportValidity();return;}
+  openDialog('<div class="dialog-body"><p class="eyebrow">Ваш проект</p><h2>Заявка подготовлена</h2><p>Отправка в студию пока не подключена. Вы можете сохранить заявку на своём устройстве. Ваши данные никуда не переданы.</p><dl class="request-summary"><dt>Имя</dt><dd id="summary-name"></dd><dt>Телефон</dt><dd id="summary-phone"></dd></dl><button class="button button-gold" id="download-request">Скачать заявку <span aria-hidden="true">↓</span></button></div>');
+  document.getElementById('summary-name').textContent=name;document.getElementById('summary-phone').textContent=phone.value;
+  document.getElementById('download-request').addEventListener('click',()=>{const blob=new Blob([`SIASHOV KITCHENS — заявка на расчёт кухни\n\nИмя: ${name}\nТелефон: ${phone.value}\n\nСтатус: не отправлена.\n`],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='siashov-zayavka.txt';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+});
+document.getElementById('name').addEventListener('input',event=>event.target.setCustomValidity(''));
