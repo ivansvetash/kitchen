@@ -1,0 +1,57 @@
+/* Entrance starts after the hero is ready, including when opened as a local file. */
+.intro,.hero-image{animation:none}
+.title-line{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+.title-line>span{display:block}
+.hero-image{inset:-60px 0;transform:scale(1.035);translate:0 var(--scroll-offset,0px);will-change:transform,translate}
+.reading-progress{position:fixed;z-index:50;top:0;left:0;right:0;height:2px;background:#dec398;transform:scaleX(0);transform-origin:left;pointer-events:none}
+@media(prefers-reduced-motion:no-preference){
+  .js-ready:not(.motion-ready) .intro,.js-ready:not(.motion-ready) .hero-bottom{opacity:0}
+  .motion-ready .hero-image{animation:kitchen-entrance 3.8s cubic-bezier(.16,.75,.22,1) both}
+  .motion-ready .hero .eyebrow{animation:copy-entrance 1.2s .12s cubic-bezier(.16,.8,.2,1) both}
+  .motion-ready .hero h1{animation:none;opacity:1}
+  .motion-ready .title-line>span{animation:title-entrance 1.45s cubic-bezier(.16,.8,.2,1) both}
+  .motion-ready .title-line:nth-child(1)>span{animation-delay:.3s}
+  .motion-ready .title-line:nth-child(2)>span{animation-delay:.5s}
+  .motion-ready .title-line:nth-child(3)>span{animation-delay:.7s}
+  .motion-ready .hero-description{animation:copy-entrance 1.25s .8s cubic-bezier(.16,.8,.2,1) both}
+  .motion-ready .hero .button-gold{animation:copy-entrance 1.2s 1s cubic-bezier(.16,.8,.2,1) both}
+  .motion-ready .hero-bottom{animation:copy-entrance 1.3s 1.15s cubic-bezier(.16,.8,.2,1) both}
+  .js-ready .reveal{opacity:0;transform:translateY(58px);transition:opacity 1.15s ease,transform 1.3s cubic-bezier(.16,.8,.2,1);transition-delay:var(--delay,0ms)}
+  .js-ready .reveal.visible{opacity:1;transform:translateY(0)}
+  .benefit:nth-child(2),.project-card:nth-child(2),.material:nth-child(2),.steps li:nth-child(2){--delay:160ms}
+  .benefit:nth-child(3),.project-card:nth-child(3),.material:nth-child(3),.steps li:nth-child(3){--delay:320ms}
+  .benefit:nth-child(4),.material:nth-child(4),.steps li:nth-child(4){--delay:480ms}
+  .steps li:nth-child(5){--delay:640ms}
+  .js-ready .project-card .project-photo{clip-path:inset(0 0 100% 0);transition:clip-path 1.45s cubic-bezier(.16,.8,.2,1);transition-delay:var(--delay,0ms)}
+  .js-ready .project-card.visible .project-photo{clip-path:inset(0 0 0 0)}
+  .js-ready .project-card .project-photo img{transform:scale(1.16);transition:transform 1.9s cubic-bezier(.16,.8,.2,1),filter .5s}
+  .js-ready .project-card.visible .project-photo img{transform:scale(1)}
+  .js-ready .project-card.visible:hover .project-photo img{transform:scale(1.07)}
+  .js-ready .material .material-image img{transform:scale(1.16);transition:transform 1.6s cubic-bezier(.16,.8,.2,1);transition-delay:var(--delay,0ms)}
+  .js-ready .material.visible .material-image img{transform:scale(1)}
+  .js-ready .material.visible:hover .material-image img{transform:scale(1.08);transition-delay:0s}
+  .js-ready .steps li:before{transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(.16,.8,.2,1);transition-delay:calc(var(--delay,0ms) + 200ms)}
+  .js-ready .steps li.visible:before{transform:scaleX(1)}
+  .js-ready .step-number{transition:background .6s,border-color .6s,box-shadow .6s;transition-delay:var(--delay,0ms)}
+  .js-ready .visible .step-number{background:#242219;box-shadow:0 0 0 6px #d4b78709}
+  .js-ready .contact-form.reveal{transform:translateY(50px) scale(.97);--delay:180ms}
+  .js-ready .contact-form.reveal.visible{transform:translateY(0) scale(1)}
+  .button-gold{position:relative;overflow:hidden}
+  .button-gold:after{content:'';position:absolute;inset:-50% auto -50% -80%;width:40%;background:linear-gradient(90deg,transparent,#fff5,transparent);transform:skewX(-22deg);pointer-events:none}
+  .button-gold:hover:after{animation:button-light .85s ease}
+  @media(max-width:600px){
+    .js-ready .reveal{transform:translateY(38px)}
+    .js-ready .steps li:before{transform:scaleY(0);transform-origin:top}
+    .js-ready .steps li.visible:before{transform:scaleY(1)}
+    .project-card{--delay:0ms!important}
+  }
+}
+@keyframes kitchen-entrance{from{transform:scale(1.15);filter:brightness(.72)}to{transform:scale(1.035);filter:brightness(1)}}
+@keyframes title-entrance{from{opacity:0;transform:translateY(112%)}to{opacity:1;transform:translateY(0)}}
+@keyframes copy-entrance{from{opacity:0;transform:translateY(35px)}to{opacity:1;transform:translateY(0)}}
+@keyframes button-light{from{left:-80%}to{left:145%}}
+@media(prefers-reduced-motion:reduce){
+  .hero-image{transform:none;translate:none;will-change:auto}
+  .title-line>span,.intro,.hero-bottom{opacity:1;transform:none}
+  .reading-progress{display:none}
+}
