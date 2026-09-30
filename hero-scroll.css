@@ -1,0 +1,116 @@
+/* The first screen stays in place while the next three screen-heights scrub it. */
+.hero-scroll {
+  --hero-stage-height: 100vh;
+  --hero-stage-height: 100svh;
+  position: relative;
+}
+.hero-scroll.is-scroll-active {
+  height: calc(var(--hero-stage-height) + var(--hero-scroll-distance, 300svh));
+}
+.hero-scroll .hero {
+  height: var(--hero-stage-height);
+  min-height: 0;
+  max-height: none;
+}
+.hero-scroll.is-scroll-active .hero {
+  position: sticky;
+  top: 0;
+}
+.hero-scroll .hero-image {
+  inset: 0;
+  background: url('assets/hero-poster.webp') center 55% / cover no-repeat;
+  animation: none;
+  transform: none;
+  translate: none;
+  filter: none;
+  will-change: auto;
+}
+.hero-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+  opacity: 0;
+  pointer-events: none;
+}
+.hero-scroll.is-video-ready .hero-video { opacity: 1; }
+.hero-scroll .hero-content {
+  min-height: 0;
+  height: 100%;
+  padding-top: clamp(108px, 15svh, 155px);
+  padding-bottom: clamp(22px, 4svh, 40px);
+}
+.hero-scroll .hero-copy { margin-bottom: clamp(20px, 5svh, 75px); }
+.hero-scroll .hero-contact-line { margin-bottom: 16px; }
+.hero-scroll .hero .social-preview { margin-top: 16px; }
+.motion-ready .hero-scroll .intro { animation: none; }
+.hero-scroll .intro,
+.hero-scroll .hero h1,
+.hero-scroll .title-line > span,
+.hero-scroll .hero-bottom {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+html.hero-scroll-ready .header { position: fixed; animation: none; }
+html.hero-scroll-ready [data-hero-reveal] {
+  opacity: var(--hero-reveal-opacity, 0);
+  visibility: hidden;
+  transform: translate3d(0, var(--hero-reveal-y, 24px), 0);
+  transition: none;
+}
+html.hero-scroll-ready [data-hero-reveal].is-hero-visible { visibility: visible; }
+.hero-scroll.is-static .hero-image {
+  background-image: url('assets/hero-poster.webp');
+}
+.hero-scroll.is-static .hero-video { display: none; }
+@media (max-width: 900px) {
+  .hero-scroll .hero-image { background-position: 59% center; }
+  .hero-video { object-position: 59% center; }
+}
+@media (max-width: 600px) {
+  .hero-scroll .hero-content { padding-top: clamp(105px, 15svh, 145px); padding-bottom: 25px; }
+  .hero-scroll .hero-copy { margin-bottom: 28px; }
+  .hero-scroll .hero-image { background-position: 62% center; }
+  .hero-video { object-position: 62% center; }
+}
+/* Keep the whole pinned composition usable on short/landscape screens. */
+@media (max-height: 650px) {
+  .hero-scroll .hero-content { padding-top: 90px; padding-bottom: 16px; }
+  .hero-scroll .hero-copy { margin-bottom: 16px; }
+  .hero-scroll .hero .eyebrow { font-size: 9px; margin-bottom: 12px; }
+  .hero-scroll .hero h1 { font-size: clamp(32px, 5.8vh, 42px); letter-spacing: -1px; }
+  .hero-scroll .hero-description { font-size: 13px; line-height: 1.4; margin-top: 14px; }
+  .hero-scroll .hero .button-gold { min-height: 44px; padding-block: 10px; margin-top: 16px; }
+  .hero-scroll .stats strong { font-size: 20px; }
+  .hero-scroll .stats strong small { font-size: 12px; }
+  .hero-scroll .stats span { font-size: 10px; }
+  .hero-scroll .hero-contact-line { font-size: 12px; margin-bottom: 10px; }
+  .hero-scroll .hero-actions { flex-direction: row; align-items: center; gap: 10px 18px; }
+  .hero-scroll .hero-actions .text-action { font-size: 12px; }
+  .hero-scroll .hero .social-preview { margin-top: 10px; }
+  .hero-scroll .social-chip { min-height: 28px; font-size: 12px; padding: 3px 10px; }
+}
+@media (max-height: 450px) {
+  .hero-scroll .hero-content { padding-top: 74px; padding-bottom: 12px; }
+  .header-inner { height: 65px; }
+  .nav { top: 65px; }
+  .hero-scroll .hero-copy { margin-bottom: 10px; }
+  .hero-scroll .hero h1 { font-size: 30px; line-height: 1.05; }
+  .hero-scroll .hero .eyebrow { margin-bottom: 8px; }
+  .hero-scroll .hero-description { font-size: 12px; margin-top: 10px; max-width: 580px; }
+  .hero-scroll .hero-description br { display: none; }
+  .hero-scroll .hero .button-gold { min-height: 38px; margin-top: 10px; padding-block: 7px; }
+  .hero-scroll .stats strong { font-size: 18px; }
+  .hero-scroll .stats strong small { display: inline; }
+  .hero-scroll .stats span { margin-top: 3px; }
+  .hero-scroll .hero-content { padding-top: 68px; }
+  .hero-scroll .hero-contact-line { font-size: 11px; margin-bottom: 5px; }
+  .hero-scroll .hero h1 { font-size: 27px; }
+  .hero-scroll .hero .eyebrow { margin-bottom: 5px; }
+  .hero-scroll .hero-description { font-size: 11px; line-height: 1.3; margin-top: 6px; }
+  .hero-scroll .hero .button-gold { min-height: 33px; margin-top: 6px; padding-block: 5px; }
+  .hero-scroll .hero .social-preview { margin-top: 6px; }
+  .hero-scroll .social-chip { min-height: 24px; font-size: 11px; padding: 2px 9px; }
+}
