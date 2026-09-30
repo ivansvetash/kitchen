@@ -1,4 +1,4 @@
-/* The first screen stays in place while the next three screen-heights scrub it. */
+/* The first screen stays pinned while five screen-heights scrub the hero video. */
 .hero-scroll {
   --hero-stage-height: 100vh;
   --hero-stage-height: 100svh;

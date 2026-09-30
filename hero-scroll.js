@@ -6,8 +6,9 @@
   const video = track?.querySelector('.hero-video');
   if (!track || !stage || !video) return;
 
-  const screens = Number(track.dataset.scrollScreens) || 3;
+  const screens = Number(track.dataset.scrollScreens) || 5;
   const fps = Number(video.dataset.fps) || 24;
+  const isMobile = matchMedia('(max-width: 700px)').matches;
   const reveals = [...track.querySelectorAll('[data-hero-reveal]'), ...document.querySelectorAll('.header[data-hero-reveal]')]
     .filter((element, index, all) => all.indexOf(element) === index)
     .map(element => {
@@ -21,7 +22,9 @@
   let startY = 0;
   let distance = 1;
   let duration = 0;
-  let pendingTime = 0;
+  let targetTime = 0;
+  let displayedTime = 0;
+  let lastProgress = -1;
 
   function revealAt(progress) {
     for (const { element, start, end } of reveals) {
@@ -33,31 +36,49 @@
     }
   }
 
-  function updateVideo(progress) {
+  function setTarget(progress) {
     if (!duration || video.readyState < 1 || failed) return;
-
-    // The source video is encoded with every frame seekable. Quantising to the
-    // source FPS prevents needless micro-seeks and keeps forward/reverse scroll stable.
     const lastFrame = Math.max(0, Math.floor(duration * fps) - 1);
     const frame = Math.round(progress * lastFrame);
-    pendingTime = Math.min(duration - 0.001, frame / fps);
+    targetTime = Math.min(duration - 0.001, frame / fps);
+  }
 
-    if (video.seeking) return;
-    if (Math.abs(video.currentTime - pendingTime) < 0.4 / fps) return;
+  function seekTowardTarget() {
+    if (!duration || failed || video.readyState < 1) return;
 
-    try {
-      video.currentTime = pendingTime;
-    } catch (_) {
-      // A media event will retry once the browser is ready to seek.
+    // Mobile Safari/Chrome stutter badly when every tiny scroll delta starts a seek.
+    // Keep one seek in flight and gently catch up to the latest target instead.
+    const gap = targetTime - displayedTime;
+    const smoothing = isMobile ? 0.34 : 0.55;
+    displayedTime += gap * smoothing;
+
+    const frameStep = 1 / fps;
+    if (Math.abs(targetTime - displayedTime) < frameStep * 0.45) {
+      displayedTime = targetTime;
+    }
+
+    if (!video.seeking && Math.abs(video.currentTime - displayedTime) >= frameStep * 0.55) {
+      try { video.currentTime = displayedTime; } catch (_) { /* retry next frame */ }
     }
   }
 
   function paint() {
     raf = 0;
     if (failed) return;
+
     const progress = clamp((window.scrollY - startY) / distance);
-    revealAt(progress);
-    updateVideo(progress);
+    if (Math.abs(progress - lastProgress) > 0.0001) {
+      revealAt(progress);
+      setTarget(progress);
+      lastProgress = progress;
+    }
+
+    seekTowardTarget();
+
+    // Continue only while the displayed frame is still catching the requested frame.
+    if (Math.abs(targetTime - displayedTime) > 1 / (fps * 2)) {
+      raf = requestAnimationFrame(paint);
+    }
   }
 
   function queuePaint() {
@@ -89,29 +110,28 @@
     video.pause();
     measure();
     queuePaint();
-
-    // Do not disable this effect because of prefers-reduced-motion. This is not
-    // autoplayed animation: the visitor directly controls the frame by scrolling.
     if (video.readyState === 0) video.load();
   }
 
   function mediaReady() {
-    if (Number.isFinite(video.duration) && video.duration > 0) duration = video.duration;
+    if (Number.isFinite(video.duration) && video.duration > 0) {
+      duration = video.duration;
+      if (!Number.isFinite(displayedTime) || displayedTime < 0) displayedTime = 0;
+    }
     track.classList.add('is-video-ready');
     queuePaint();
   }
 
-  function retryPendingSeek() {
-    if (failed || !duration || video.readyState < 1 || video.seeking) return;
-    if (Math.abs(video.currentTime - pendingTime) < 0.4 / fps) return;
-    try { video.currentTime = pendingTime; } catch (_) { /* retry on next event */ }
+  function onSeeked() {
+    displayedTime = video.currentTime;
+    queuePaint();
   }
 
   video.addEventListener('loadedmetadata', mediaReady);
   video.addEventListener('loadeddata', mediaReady);
   video.addEventListener('canplay', mediaReady);
-  video.addEventListener('seeked', retryPendingSeek);
-  video.addEventListener('progress', retryPendingSeek);
+  video.addEventListener('seeked', onSeeked);
+  video.addEventListener('progress', queuePaint);
   video.addEventListener('error', () => {
     failed = true;
     track.classList.remove('is-video-ready', 'is-scroll-active');
